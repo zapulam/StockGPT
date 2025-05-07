@@ -20,7 +20,7 @@
 ## 🔧 Installation
 
 ```bash
-git clone https://github.com/yourusername/StockGPT.git
+git clone https://github.com/zapulam/StockGPT.git
 cd StockGPT
 pip install -r requirements.txt
 ```
@@ -33,7 +33,7 @@ Edit
 python main.py
 Ask questions like:
 
-“What does today’s news about the Fed mean for tech stocks?”
+“What does today's news about the Fed mean for tech stocks?”
 
 “Compare the P/E ratios of $GOOG, $AAPL, and $MSFT.”
 
