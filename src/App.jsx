@@ -168,7 +168,7 @@ export default function ChatbotUI() {
       />
       <div className="h-full w-full flex flex-col justify-between bg-gray-900 overflow-hidden">
         <Header />
-        <div className="flex flex-col grow shadow-lg overflow-hidden bg-gray-900 p-8 rounded-xl m-6">
+        <div className="flex flex-col grow shadow-lg overflow-hidden bg-gray-900 p-8 rounded-xl">
           {renderMainContent()}
         </div>
       </div>
