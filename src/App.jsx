@@ -4,13 +4,19 @@ import { motion } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import Header from "./components/Header";
 import SideNav from "./components/SideNav";
-import UploadBox from "./components/UploadBox";
+import NewsInsights from "./components/NewsInsights";
+import TrendingStocks from "./components/TrendingStocks";
+import LLMChat from "./components/LLMChat";
+import FundamentalTechnicalAnalysis from "./components/FundamentalTechnicalAnalysis";
+import SmartWatchlists from "./components/SmartWatchlists";
+import AIAugmentedStockScreener from "./components/AIAugmentedStockScreener";
 
 export default function ChatbotUI() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [images, setImages] = useState([]);
   const [chatStarted, setChatStarted] = useState(false);
+  const [selectedMenu, setSelectedMenu] = useState("LLM Chat");
 
   const handleImageUpload = (updatedFiles) => {
     // Ensure updatedFiles is an array of File objects
@@ -133,82 +139,38 @@ export default function ChatbotUI() {
     setChatStarted(false);
   };
 
+  // Helper to render the selected feature component
+  const renderMainContent = () => {
+    switch (selectedMenu) {
+      case "News Insights":
+        return <NewsInsights />;
+      case "Trending Stocks":
+        return <TrendingStocks />;
+      case "LLM Chat":
+        return <LLMChat />;
+      case "Fundamental & Technical Analysis":
+        return <FundamentalTechnicalAnalysis />;
+      case "Smart Watchlists":
+        return <SmartWatchlists />;
+      case "AI Augmented Stock Screener":
+        return <AIAugmentedStockScreener />;
+      default:
+        return <NewsInsights />;
+    }
+  };
+
   return (
     <div className="flex flex-row w-screen h-screen items-center min-h-screen">
-      <SideNav onResetChat={resetChat} />
-      <div className="h-full w-full flex flex-col justify-between dark:bg-gray-900 overflow-hidden">
+      <SideNav 
+        onResetChat={resetChat} 
+        selectedMenu={selectedMenu}
+        onMenuSelect={setSelectedMenu}
+      />
+      <div className="h-full w-full flex flex-col justify-between bg-gray-900 overflow-hidden">
         <Header />
-        
-        {!chatStarted ? (
-          <UploadBox 
-            onImageUpload={handleImageUpload} 
-            onStartChat={handleStartChat} 
-            setMessages={setMessages} 
-          />
-        ) : (
-          <div className="flex flex-col grow shadow-lg overflow-hidden">
-
-            {/* Main content area */}
-            <div className="flex flex-col content-center grow p-4 space-y-4 h-[500px] overflow-y-auto scrollbar-none">
-              
-              {/* Uploaded Images Section */}
-              {images.length > 0 && (
-                <div className="px-[10vw] space-y-6 grid grid-cols-2 md:grid-cols-3 gap-4 mb-2">
-                  {images.map((img, index) => (
-                    <motion.div
-                      key={index}
-                      className="relative group"
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <img
-                        src={img}
-                        alt={`Uploaded ${index}`}
-                        className="w-full h-40 object-cover rounded-lg shadow-md"
-                      />
-                    </motion.div>
-                  ))}
-                </div>
-              )}
-
-              {/* Chat Messages */}
-              <div className="px-[10vw] space-y-6">
-                {messages.map((msg, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className={`text-left p-3 rounded-lg w-fit max-w-2xl text-white ${
-                      msg.role === "user"
-                        ? "bg-gray-800 text-white self-end ml-auto"
-                        : "bg-gray-800 text-black self-start"
-                    }`}
-                  >
-                    <div className="whitespace-pre-wrap">
-                      <ReactMarkdown>{msg.text}</ReactMarkdown>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-
-            {/* Chat Input Box */}
-            <div className="px-[10vw] py-4 flex justify-center gap-2">
-              <input 
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Type a message..."
-                className="text-gray-100 border-gray-300 flex-1 border p-2 rounded"
-                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-              />
-              <button onClick={sendMessage} className="bg-green-600 hover:bg-green-400 transition duration-300 text-white px-3 py-2 rounded cursor-pointer">
-                <Send className="w-4 h-4 md:w-6 md:h-6" />
-              </button>
-            </div>
-          </div>
-        )}
+        <div className="flex flex-col grow shadow-lg overflow-hidden bg-gray-900 p-8 rounded-xl m-6">
+          {renderMainContent()}
+        </div>
       </div>
     </div>
   );

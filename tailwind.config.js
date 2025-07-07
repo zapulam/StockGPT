@@ -1,43 +1,41 @@
-// tailwind.config.js
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: [
     './index.html',
-    './src/**/*.{js,jsx,ts,tsx}', // Ensures Tailwind scans your source files
+    './src/**/*.{js,jsx,ts,tsx}',
   ],
-  darkMode: "class", // Enables class-based dark mode
   theme: {
     extend: {
-      fontSize: {
-        base: "1rem",
-        lg: "1.125rem",
-        xl: "1.25rem",
-        "2xl": "1.5rem",
-        "3xl": "1.875rem",
-        "4xl": "2.25rem",
-        "5xl": "3rem",
-        "6xl": "4rem",
-      },
-      screens: {
-        xs: "480px", // Adds a custom screen size for better mobile scaling
-      },
       colors: {
+        navy: {
+          900: '#0a192f',
+          800: '#112240',
+          700: '#233554',
+          600: '#2c3e50',
+          500: '#3a506b',
+        },
+        forest: {
+          900: '#014421',
+          800: '#14532d',
+          700: '#166534',
+          600: '#15803d',
+          500: '#22c55e',
+        },
+        primary: '#112240', // navy
+        secondary: '#14532d', // forest green
         dark: {
-          900: "#121212",
-          800: "#1a1a1a",
-          700: "#222222",
-          600: "#2a2a2a",
-          500: "#333333",
-          400: "#3d3d3d",
-          300: "#525252",
-          200: "#a1a1a1",
-          100: "#cfcfcf",
+          900: '#0a192f',
+          800: '#112240',
+          700: '#233554',
+          600: '#2c3e50',
+          500: '#3a506b',
+          400: '#3d3d3d',
+          300: '#525252',
+          200: '#a1a1a1',
+          100: '#cfcfcf',
         },
       },
     },
   },
-  plugins: [
-    require('@tailwindcss/typography'), // Adds the typography plugin for better text handling
-    require('tailwind-scrollbar')
-  ],
-};
+} 

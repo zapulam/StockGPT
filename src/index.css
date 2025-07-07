@@ -15,8 +15,8 @@
 body {
   margin: 0;
   padding: 0;
-  background-color: white; /* Default for light mode */
-  color: black;
+  /* background-color: white; */
+  /* color: black; */
 }
 
 /* Dark mode support using Tailwind's class-based approach */
