@@ -102,22 +102,36 @@ const SideNav = ({ onResetChat, selectedMenu, onMenuSelect }) => {
             transition={{ duration: 0.3 }}
           >
             <motion.div
-              className="bg-gray-800 p-8 rounded-2xl text-gray-100 w-1/3 shadow-2xl border-2 border-gray-700"
+              className="bg-gray-800 p-10 rounded-2xl text-gray-100 w-full max-w-lg shadow-2xl border-2 border-gray-700 flex flex-col items-center"
               initial={{ scale: 0.9 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0.9 }}
               transition={{ duration: 0.3 }}
             >
-              <h3 className="text-lg font-semibold mb-4 text-gray-100">Welcome to StockGPT</h3>
-              <p className="mb-4">
-                This app is an AI-powered toolkit for intelligent stock market analysis and research. Explore the features using the navigation menu!
-              </p>
+              <div className="flex flex-col items-center mb-4">
+                <MessageCircleQuestion className="w-12 h-12 text-gray-300 mb-2" />
+                <h3 className="text-2xl font-bold mb-2">Welcome to <span className='text-blue-400'>StockGPT</span></h3>
+                <p className="text-gray-300 text-center mb-4 max-w-md">
+                  StockGPT is your AI-powered toolkit for intelligent stock market analysis and investment research. Explore the features below to get started:
+                </p>
+                <ul className="text-left text-gray-200 list-disc pl-6 space-y-1 mb-4">
+                  <li><span className="font-semibold text-blue-300">LLM Chat:</span> Ask questions about stocks, markets, and trends.</li>
+                  <li><span className="font-semibold text-blue-300">News Insights:</span> Summarize and contextualize the latest financial news.</li>
+                  <li><span className="font-semibold text-blue-300">Trending Stocks:</span> See what's hot in the market right now.</li>
+                  <li><span className="font-semibold text-blue-300">Analysis:</span> Run fundamental and technical analysis on stocks.</li>
+                  <li><span className="font-semibold text-blue-300">Smart Watchlists:</span> Track and manage your favorite stocks.</li>
+                  <li><span className="font-semibold text-blue-300">Stock Screener:</span> Use AI to find stocks that match your criteria.</li>
+                </ul>
+              </div>
               <button
                 onClick={togglePopup}
-                className="mt-4 bg-gray-800 text-gray-100 p-2 rounded shadow-md hover:scale-105 transition"
+                className="mt-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded shadow-md font-semibold transition"
               >
                 Close
               </button>
+              <div className="mt-6 text-xs text-gray-400 text-center w-full border-t border-gray-700 pt-2">
+                &copy; {new Date().getFullYear()} StockGPT. For research and educational use only.
+              </div>
             </motion.div>
           </motion.div>
         )}
