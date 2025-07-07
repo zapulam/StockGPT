@@ -46,7 +46,7 @@ const SideNav = ({ onResetChat, selectedMenu, onMenuSelect }) => {
         </AnimatePresence>
         <button
           onClick={handleToggle}
-          className="text-gray-100 p-1 rounded hover:bg-gray-800/30 cursor-pointer border border-gray-700"
+          className="text-gray-100 p-1 rounded hover:bg-gray-800 shadow cursor-pointer transition"
         >
           {isCollapsed ? <ChevronRight /> : <ChevronLeft />}
         </button>
