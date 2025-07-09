@@ -30,7 +30,7 @@ body {
 }
 
 html {
-  font-size: calc(1rem);
+  font-size: calc(0.875rem);
 }
 
 /* Keep link styles, but allow Tailwind to override them */

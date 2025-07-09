@@ -39,7 +39,39 @@ const NewsInsights = () => {
     }
   };
 
+  const getCachedNews = (sortType) => {
+    const cachedNews = localStorage.getItem(`stockgpt_news_${sortType}`);
+    const cachedTimestamp = localStorage.getItem(`stockgpt_news_${sortType}_timestamp`);
+    const now = Date.now();
+    const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
+
+    if (cachedNews && cachedTimestamp && (now - parseInt(cachedTimestamp)) < oneHour) {
+      try {
+        return JSON.parse(cachedNews);
+      } catch (e) {
+        // If parsing fails, clear cache
+        localStorage.removeItem(`stockgpt_news_${sortType}`);
+        localStorage.removeItem(`stockgpt_news_${sortType}_timestamp`);
+      }
+    }
+    return null;
+  };
+
+  const setCachedNews = (sortType, newsData) => {
+    localStorage.setItem(`stockgpt_news_${sortType}`, JSON.stringify(newsData));
+    localStorage.setItem(`stockgpt_news_${sortType}_timestamp`, Date.now().toString());
+  };
+
   const fetchNews = async (sortType = "top") => {
+    // Check cache first
+    const cachedData = getCachedNews(sortType);
+    if (cachedData) {
+      setAllNews(cachedData);
+      setNews(cachedData);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setError(null);
     try {
@@ -49,6 +81,7 @@ const NewsInsights = () => {
       const newsData = data.news || [];
       setAllNews(newsData);
       setNews(newsData);
+      setCachedNews(sortType, newsData); // Cache the data
       setLoading(false);
     } catch (err) {
       setError(err.message);
@@ -57,28 +90,7 @@ const NewsInsights = () => {
   };
 
   useEffect(() => {
-    // Check if we have cached news data
-    const cachedNews = localStorage.getItem('stockgpt_news');
-    const cachedTimestamp = localStorage.getItem('stockgpt_news_timestamp');
-    const now = Date.now();
-    const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
-
-    // Use cached data if it exists and is less than 1 hour old
-    if (cachedNews && cachedTimestamp && (now - parseInt(cachedTimestamp)) < oneHour) {
-      try {
-        const newsData = JSON.parse(cachedNews);
-        setAllNews(newsData);
-        setNews(newsData);
-        setLoading(false);
-        return;
-      } catch (e) {
-        // If parsing fails, clear cache and fetch fresh data
-        localStorage.removeItem('stockgpt_news');
-        localStorage.removeItem('stockgpt_news_timestamp');
-      }
-    }
-
-    // Fetch fresh data
+    // Load initial data (Top)
     fetchNews("top");
   }, []);
 
@@ -148,7 +160,6 @@ const NewsInsights = () => {
   return (
     <div className="flex flex-col w-full h-full overflow-y-auto">
       <div className="flex flex-col items-center w-full p-4">
-        <h1 className="text-3xl font-bold text-gray-100 mb-6">News Insights</h1>
         
         {/* Search and Sort Controls */}
         <div className="w-full max-w-4xl mb-6">

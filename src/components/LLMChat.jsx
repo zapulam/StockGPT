@@ -75,7 +75,7 @@ const LLMChat = () => {
       {error && <div className="text-red-400 text-xs px-6 pb-2">{error}</div>}
       {/* Input */}
       <form
-        className="flex items-center gap-2 py-4 bg-gray-900 rounded-b-xl"
+        className="flex items-center gap-2 mb-4 mx-4 bg-gray-900 rounded-b-xl"
         onSubmit={e => { e.preventDefault(); sendMessage(); }}
       >
         <textarea
