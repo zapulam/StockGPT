@@ -10,13 +10,14 @@ import LLMChat from "./components/LLMChat";
 import FundamentalTechnicalAnalysis from "./components/FundamentalTechnicalAnalysis";
 import SmartWatchlists from "./components/SmartWatchlists";
 import AIAugmentedStockScreener from "./components/AIAugmentedStockScreener";
+import OptionsBuilder from "./components/OptionsBuilder";
 
 export default function ChatbotUI() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [images, setImages] = useState([]);
   const [chatStarted, setChatStarted] = useState(false);
-  const [selectedMenu, setSelectedMenu] = useState("LLM Chat");
+  const [selectedMenu, setSelectedMenu] = useState("Options Builder");
 
   const handleImageUpload = (updatedFiles) => {
     // Ensure updatedFiles is an array of File objects
@@ -142,6 +143,8 @@ export default function ChatbotUI() {
   // Helper to render the selected feature component
   const renderMainContent = () => {
     switch (selectedMenu) {
+      case "Options Builder":
+        return <OptionsBuilder />;
       case "News Insights":
         return <NewsInsights />;
       case "Trending Stocks":
@@ -155,7 +158,7 @@ export default function ChatbotUI() {
       case "AI Augmented Stock Screener":
         return <AIAugmentedStockScreener />;
       default:
-        return <NewsInsights />;
+        return <OptionsBuilder />;
     }
   };
 
@@ -168,7 +171,7 @@ export default function ChatbotUI() {
       />
       <div className="h-full w-full flex flex-col justify-between bg-gray-900 overflow-hidden">
         <Header />
-        <div className="flex flex-col grow shadow-lg overflow-hidden bg-gray-900 p-8 rounded-xl">
+        <div className="flex flex-col grow shadow-lg bg-gray-900 overflow-y-auto">
           {renderMainContent()}
         </div>
       </div>

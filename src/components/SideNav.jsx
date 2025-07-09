@@ -16,6 +16,7 @@ const SideNav = ({ onResetChat, selectedMenu, onMenuSelect }) => {
 
   // Define menu items
   const menuItems = [
+    { icon: <PlusCircle className="w-5 h-5" />, label: "Options Builder" },
     { icon: <MessageCircleQuestion className="w-5 h-5" />, label: "LLM Chat" },
     { icon: <Files className="w-5 h-5" />, label: "News Insights" },
     { icon: <Home className="w-5 h-5" />, label: "Trending Stocks" },
