@@ -168,7 +168,7 @@ const NewsInsights = () => {
             <div className="relative">
               <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="relative flex items-center justify-center px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-100 hover:bg-gray-700 transition-colors min-w-[140px]"
+                className="relative flex items-center justify-center px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-100 hover:bg-gray-700 transition-colors min-w-[160px]"
               >
                 <ChevronDown className={`absolute left-3 w-4 h-4 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
                 <span>{getCurrentSortLabel()}</span>
