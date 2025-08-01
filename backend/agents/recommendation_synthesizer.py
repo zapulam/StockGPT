@@ -103,50 +103,10 @@ class RecommendationSynthesizer(BaseAgent):
                     self.log_error(f"Failed to validate ETF {etf_symbol}: {e}")
                     continue
             
-            # Method 2: Use a curated list of real, active companies across sectors
-            # These are discovered from analyzing major market indices and sectors
-            verified_candidates = [
-                # Technology (discovered from QQQ/XLK analysis)
-                "AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "META", "TSLA", "NFLX", "ADBE", "CRM",
-                "ORCL", "INTC", "QCOM", "AVGO", "TXN", "AMD", "INTU", "MU", "AMAT", "LRCX",
-                "KLAC", "MCHP", "CDNS", "SNPS", "FTNT", "TEAM", "DDOG", "SNOW", "PLTR", "ZS",
-                
-                # Finance (discovered from XLF analysis) 
-                "JPM", "BAC", "WFC", "GS", "MS", "C", "USB", "PNC", "TFC", "COF",
-                "AXP", "BLK", "SPGI", "ICE", "CME", "MCO", "PYPL", "V", "MA", "FISV",
-                
-                # Healthcare (discovered from XLV analysis)
-                "UNH", "JNJ", "PFE", "ABBV", "MRK", "TMO", "ABT", "DHR", "BMY", "LLY",
-                "AMGN", "GILD", "VRTX", "REGN", "BIIB", "ILMN", "MRNA", "ISRG", "SYK", "BSX",
-                
-                # Consumer (discovered from market analysis)
-                "WMT", "PG", "KO", "PEP", "COST", "HD", "MCD", "NKE", "SBUX", "TGT",
-                "LOW", "DIS", "CMCSA", "VZ", "T", "CVX", "XOM", "COP", "SLB", "EOG",
-                
-                # Industrial/Energy (discovered from sector analysis)
-                "BA", "CAT", "GE", "HON", "UPS", "FDX", "LMT", "RTX", "NOC", "DE",
-                "MMM", "EMR", "ETN", "ITW", "PH", "ROK", "DOV", "XYL", "CARR", "OTIS"
-            ]
-            
-            # Validate each candidate is still active and liquid
-            for symbol in verified_candidates:
-                try:
-                    ticker = yf.Ticker(symbol)
-                    hist = ticker.history(period="5d")
-                    info = ticker.info
-                    
-                    # Strict validation criteria
-                    if (len(hist) >= 3 and  # At least 3 trading days of data
-                        info.get('marketCap', 0) > 5_000_000_000 and  # 5B+ market cap
-                        hist['Volume'][-1] > 500_000 and  # 500K+ daily volume
-                        hist['Close'][-1] > 5.0):  # Above $5 per share
-                        
-                        candidates.append(symbol)
-                        
-                except Exception as e:
-                    # Log failed validation but continue
-                    self.log_error(f"Failed to validate {symbol}: {e}")
-                    continue
+            # Method 2: Dynamically discover stocks - NO PREDETERMINED LISTS!
+            # This agent should ONLY synthesize discoveries from other agents
+            self.log_info("RecommendationSynthesizer does not discover stocks independently")
+            # All stock discovery should come from other agents' analysis
             
             self.log_info(f"Validated {len(candidates)} real market stocks from verified sources")
             return candidates
@@ -156,44 +116,24 @@ class RecommendationSynthesizer(BaseAgent):
             return []
     
     async def _get_fallback_actives(self) -> List[str]:
-        """Fallback method: Get known active stocks from major indices"""
+        """No fallback - force pure dynamic discovery"""
         try:
-            self.log_info("Using fallback method to find active stocks...")
+            self.log_warning("No predetermined fallback lists - system must rely on dynamic discovery")
             
-            # Use well-known, highly liquid stocks as fallback
-            # These are discovered by checking major index ETFs
-            fallback_candidates = [
-                # Most liquid large-cap stocks (discoverable from SPY holdings)
-                "MSFT", "AAPL", "NVDA", "GOOGL", "AMZN", "META", "TSLA", "AVGO",
-                "JPM", "WMT", "LLY", "UNH", "V", "PG", "MA", "HD", "JNJ", "NFLX",
-                "BAC", "ABBV", "CRM", "COST", "PEP", "KO", "ADBE", "WFC", "MRK"
-            ]
-            
-            # Validate each stock is still active
-            active_stocks = []
-            for symbol in fallback_candidates:
-                try:
-                    ticker = yf.Ticker(symbol)
-                    hist = ticker.history(period="2d")
-                    
-                    if len(hist) > 0 and hist['Volume'][-1] > 1_000_000:  # 1M+ daily volume
-                        active_stocks.append(symbol)
-                        
-                except Exception:
-                    continue
-            
-            self.log_info(f"Fallback validation found {len(active_stocks)} active stocks")
-            return active_stocks[:15]  # Limit to 15
+            # Return empty list to force system to work with what other agents discover
+            # This ensures we never rely on predetermined stock lists
+            return []
             
         except Exception as e:
             self.log_error(f"Fallback method failed: {e}")
             return []
     
     async def _systematic_market_screening(self) -> List[str]:
-        """Backup method: Use fallback active stocks"""
+        """No systematic screening with predetermined lists"""
         try:
-            self.log_info("Using systematic market screening as final fallback...")
-            return await self._get_fallback_actives()
+            self.log_warning("Systematic screening disabled - system must use dynamic agent discoveries only")
+            # Return empty to force reliance on other agents' discoveries
+            return []
             
         except Exception as e:
             self.log_error(f"Systematic screening failed: {e}")
@@ -257,11 +197,42 @@ class RecommendationSynthesizer(BaseAgent):
         # Get trending topics for sector boost
         trending_topics = web_data.get("trending_topics", [])
         
-        # Discover trending stocks dynamically 
-        trending_stocks = await self._discover_trending_stocks()
+        # CRITICAL: Get stocks discovered by other agents (NO independent discovery!)
+        all_discovered_stocks = []
+        
+        # Get stocks from WebSearchAgent
+        web_trending_stocks = web_data.get("trending_stocks", [])
+        if web_trending_stocks:
+            all_discovered_stocks.extend(web_trending_stocks)
+            self.log_info(f"Got {len(web_trending_stocks)} stocks from WebSearchAgent: {web_trending_stocks}")
+        
+        # Get stocks from EarningsAgent (extract symbols from upcoming earnings)
+        upcoming_earnings = earnings_data.get("upcoming_earnings", [])
+        if upcoming_earnings:
+            # Extract symbols from earnings data
+            earnings_symbols = [earning.get("symbol") for earning in upcoming_earnings if earning.get("symbol")]
+            all_discovered_stocks.extend(earnings_symbols)
+            self.log_info(f"Got {len(earnings_symbols)} stocks from EarningsAgent: {earnings_symbols}")
+        
+        # Get stocks from MarketAnalysisAgent
+        market_momentum_stocks = market_data.get("momentum_stocks", [])
+        if market_momentum_stocks:
+            # Extract symbols from momentum stock objects
+            market_symbols = [stock.get("symbol") for stock in market_momentum_stocks if stock.get("symbol")]
+            all_discovered_stocks.extend(market_symbols)
+            self.log_info(f"Got {len(market_symbols)} stocks from MarketAnalysisAgent: {market_symbols}")
+        
+        # Remove duplicates and clean up
+        unique_stocks = list(set(all_discovered_stocks))
+        self.log_info(f"Total unique stocks discovered by agents: {len(unique_stocks)} - {unique_stocks}")
+        
+        # If no stocks discovered, log warning
+        if not unique_stocks:
+            self.log_warning("No stocks discovered by any agent - check agent discovery methods")
+            return {}
         
         # Calculate scores for each discovered stock
-        for symbol in trending_stocks:
+        for symbol in unique_stocks:
             score = 0
             
             # Momentum score (0-4 points)

@@ -28,6 +28,10 @@ class BaseAgent(ABC):
     def log_error(self, message: str):
         """Log error message"""
         self.logger.error(f"[{self.name}] {message}")
+    
+    def log_warning(self, message: str):
+        """Log warning message"""
+        self.logger.warning(f"[{self.name}] {message}")
 
 class AgentOrchestrator:
     """Orchestrates multiple agents to work together"""
