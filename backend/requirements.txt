@@ -4,3 +4,13 @@ openai
 azure-identity
 uvicorn
 langchain-openai
+langchain
+langchain-community
+requests
+beautifulsoup4
+yfinance
+pandas
+numpy
+python-dateutil
+aiohttp
+asyncio

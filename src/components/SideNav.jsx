@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { Home, Files, PlusCircle, ChevronLeft, ChevronRight, MessageCircleQuestion, BarChart3, Filter, ListTodo } from "lucide-react";
+import { ChevronLeft, ChevronRight, MessageCircleQuestion, Brain, TrendingUp, BookmarkPlus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const SideNav = ({ onResetChat, selectedMenu, onMenuSelect }) => {
+const SideNav = ({ selectedMenu, onMenuSelect }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
@@ -16,13 +16,9 @@ const SideNav = ({ onResetChat, selectedMenu, onMenuSelect }) => {
 
   // Define menu items
   const menuItems = [
-    { icon: <PlusCircle className="w-5 h-5" />, label: "Options Builder" },
-    { icon: <MessageCircleQuestion className="w-5 h-5" />, label: "LLM Chat" },
-    { icon: <Files className="w-5 h-5" />, label: "News Insights" },
-    { icon: <Home className="w-5 h-5" />, label: "Trending Stocks" },
-    { icon: <BarChart3 className="w-5 h-5" />, label: "Analysis" },
-    { icon: <ListTodo className="w-5 h-5" />, label: "Smart Watchlists" },
-    { icon: <Filter className="w-5 h-5" />, label: "Stock Screener" },
+    { icon: <Brain className="w-5 h-5" />, label: "StockGPT" },
+    { icon: <TrendingUp className="w-5 h-5" />, label: "Analyze" },
+    { icon: <BookmarkPlus className="w-5 h-5" />, label: "Watchlist" },
   ];
 
   return (
@@ -113,15 +109,12 @@ const SideNav = ({ onResetChat, selectedMenu, onMenuSelect }) => {
                 <MessageCircleQuestion className="w-12 h-12 text-gray-300 mb-2" />
                 <h3 className="text-2xl font-bold mb-2">Welcome to <span className='text-blue-400'>StockGPT</span></h3>
                 <p className="text-gray-300 text-center mb-4 max-w-md">
-                  StockGPT is your AI-powered toolkit for intelligent stock market analysis and investment research. Explore the features below to get started:
+                  StockGPT is your AI-powered platform for intelligent stock market analysis. Choose from three powerful features:
                 </p>
                 <ul className="text-left text-gray-200 list-disc pl-6 space-y-1 mb-4">
-                  <li><span className="font-semibold text-blue-300">LLM Chat:</span> Ask questions about stocks, markets, and trends.</li>
-                  <li><span className="font-semibold text-blue-300">News Insights:</span> Summarize and contextualize the latest financial news.</li>
-                  <li><span className="font-semibold text-blue-300">Trending Stocks:</span> See what's hot in the market right now.</li>
-                  <li><span className="font-semibold text-blue-300">Analysis:</span> Run fundamental and technical analysis on stocks.</li>
-                  <li><span className="font-semibold text-blue-300">Smart Watchlists:</span> Track and manage your favorite stocks.</li>
-                  <li><span className="font-semibold text-blue-300">Stock Screener:</span> Use AI to find stocks that match your criteria.</li>
+                  <li><span className="font-semibold text-blue-300">StockGPT:</span> Get AI-recommended top 10 stocks with technical charts.</li>
+                  <li><span className="font-semibold text-blue-300">Analyze:</span> View in-depth candlestick charts for any stock you search.</li>
+                  <li><span className="font-semibold text-blue-300">Watchlist:</span> Save and track your favorite stocks for monitoring.</li>
                 </ul>
               </div>
               <button

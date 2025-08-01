@@ -1,41 +1,38 @@
 import openai
 import yaml
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List
-import requests
+from typing import Optional
+import yfinance as yf
+import pandas as pd
+from datetime import datetime, timedelta
+from services.stock_recommendation_service import get_recommendation_service
 
-class ChatRequest(BaseModel):
-    conversation: List[dict]
+class StockRecommendationRequest(BaseModel):
+    use_parallel_execution: Optional[bool] = True
+    include_market_context: Optional[bool] = True
 
+class StockChartRequest(BaseModel):
+    symbol: str
+    period: Optional[str] = "1mo"  # 1d, 5d, 1mo, 3mo, 6mo, 1y, 2y, 5y, 10y, ytd, max
+    interval: Optional[str] = "1d"  # 1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo
+    include_moving_averages: Optional[bool] = True
+
+# Load configuration
 with open('config.yml') as config:
     config_data = yaml.safe_load(config)
     openai_config = config_data['openai']
-    newsapi_key = config_data.get('newsapi', {}).get('api_key')
 
+# Initialize OpenAI client for agentic framework
 client = openai.OpenAI(api_key=openai_config['api_key'])
-model_name = openai_config.get('model', 'gpt-4')
 
-chat_prompt = {
-    "role": "system",
-    "content": """
-        You are StockGPT, an expert financial analyst and stock market research assistant. Your task is to provide clear, accurate, and actionable insights about stocks, companies, sectors, and market trends. 
-
-        Guidelines:
-        - Answer questions about financial metrics, company fundamentals, technical analysis, and market news.
-        - Summarize and contextualize financial news and events.
-        - Compare companies, sectors, or stocks using relevant data.
-        - Explain financial concepts in a way that's accessible to both beginners and experienced investors.
-        - If asked for investment advice, provide balanced, research-driven insights and always include a disclaimer that you do not provide personalized financial advice.
-        - Use up-to-date, factual information and cite sources if possible.
-        - If you do not know the answer, say so honestly.
-        - Format your responses clearly, using bullet points, tables, or sections when helpful.
-        - Always be professional, concise, and helpful.
-        """
-}
-
-app = FastAPI()
+# Initialize FastAPI app
+app = FastAPI(
+    title="StockGPT API",
+    description="Agentic AI framework for intelligent stock recommendations",
+    version="2.0.0"
+)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
@@ -46,160 +43,148 @@ app.add_middleware(
 
 @app.get("/")
 async def health():
-    return {"message": "This server is running."}
+    return {"message": "StockGPT API is running - Agentic Stock Recommendation System"}
 
-@app.post("/chat")
-async def chat(request: ChatRequest):
-    formatted_messages = [
-        {"role": "user" if msg['role'] == 'user' else 'assistant', "content": msg["text"]} for msg in request.conversation
-    ]
-    formatted_messages.insert(0, chat_prompt)
-    response = client.chat.completions.create(
-        model=model_name,
-        messages=formatted_messages
-    )
-    return {"response": response.choices[0].message.content}
-
-@app.get("/news")
-async def get_news():
-    # Fetch top finance/stock news from NewsAPI
-    url = "https://newsapi.org/v2/top-headlines"
-    params = {
-        "category": "business",
-        "language": "en",
-        "pageSize": 10,
-        "apiKey": newsapi_key
-    }
-    r = requests.get(url, params=params)
-    articles = r.json().get("articles", [])
-    results = []
-    for article in articles:
-        if not article.get("urlToImage") or not article.get("description"):
-            continue
-        # Summarize the article description using OpenAI
-        summary_prompt = [
-            {"role": "system", "content": "Summarize this news article for a finance/investing audience in 2-3 sentences."},
-            {"role": "user", "content": article["description"]}
-        ]
-        try:
-            summary_resp = client.chat.completions.create(
-                model=model_name,
-                messages=summary_prompt
-            )
-            summary = summary_resp.choices[0].message.content.strip()
-        except Exception as e:
-            summary = article["description"]
-        results.append({
-            "title": article["title"],
-            "url": article["url"],
-            "image": article["urlToImage"],
-            "summary": summary,
-            "source": article.get("source", {}).get("name", ""),
-            "publishedAt": article.get("publishedAt", "")
-        })
-        if len(results) >= 15:
-            break
-    return {"news": results}
-
-@app.get("/search-news")
-async def search_news(query: str):
-    # Search for articles with the given keyword using NewsAPI
-    url = "https://newsapi.org/v2/everything"
-    params = {
-        "q": query,
-        "language": "en",
-        "sortBy": "publishedAt",
-        "pageSize": 20,
-        "apiKey": newsapi_key
-    }
-    r = requests.get(url, params=params)
-    articles = r.json().get("articles", [])
-    results = []
-    for article in articles:
-        if not article.get("urlToImage") or not article.get("description"):
-            continue
-        # Summarize the article description using OpenAI
-        summary_prompt = [
-            {"role": "system", "content": "Summarize this news article for a finance/investing audience in 2-3 sentences."},
-            {"role": "user", "content": article["description"]}
-        ]
-        try:
-            summary_resp = client.chat.completions.create(
-                model=model_name,
-                messages=summary_prompt
-            )
-            summary = summary_resp.choices[0].message.content.strip()
-        except Exception as e:
-            summary = article["description"]
-        results.append({
-            "title": article["title"],
-            "url": article["url"],
-            "image": article["urlToImage"],
-            "summary": summary,
-            "source": article.get("source", {}).get("name", ""),
-            "publishedAt": article.get("publishedAt", "")
-        })
-        if len(results) >= 15:
-            break
-    return {"news": results}
-
-@app.get("/news-sorted")
-async def get_news_sorted(sort_by: str = "top"):
-    # Fetch news from NewsAPI with different sorting options
-    if sort_by == "popularity":
-        url = "https://newsapi.org/v2/everything"
-        params = {
-            "q": "finance OR stocks OR market",
-            "language": "en",
-            "sortBy": "popularity",
-            "pageSize": 20,
-            "apiKey": newsapi_key
-        }
-    elif sort_by == "recent":
-        url = "https://newsapi.org/v2/everything"
-        params = {
-            "q": "finance OR stocks OR market",
-            "language": "en",
-            "sortBy": "publishedAt",
-            "pageSize": 20,
-            "apiKey": newsapi_key
-        }
-    else:  # default to top headlines
-        url = "https://newsapi.org/v2/top-headlines"
-        params = {
-            "category": "business",
-            "language": "en",
-            "pageSize": 20,
-            "apiKey": newsapi_key
-        }
+@app.post("/stock-recommendations")
+async def get_stock_recommendations(request: StockRecommendationRequest = None):
+    """
+    Generate AI-powered stock recommendations using agentic framework
     
-    r = requests.get(url, params=params)
-    articles = r.json().get("articles", [])
-    results = []
-    for article in articles:
-        if not article.get("urlToImage") or not article.get("description"):
-            continue
-        # Summarize the article description using OpenAI
-        summary_prompt = [
-            {"role": "system", "content": "Summarize this news article for a finance/investing audience in 2-3 sentences."},
-            {"role": "user", "content": article["description"]}
-        ]
-        try:
-            summary_resp = client.chat.completions.create(
-                model=model_name,
-                messages=summary_prompt
-            )
-            summary = summary_resp.choices[0].message.content.strip()
-        except Exception as e:
-            summary = article["description"]
-        results.append({
-            "title": article["title"],
-            "url": article["url"],
-            "image": article["urlToImage"],
-            "summary": summary,
-            "source": article.get("source", {}).get("name", ""),
-            "publishedAt": article.get("publishedAt", "")
-        })
-        if len(results) >= 15:
-            break
-    return {"news": results}
+    This endpoint uses multiple specialized agents to:
+    - Search the web for financial news and market sentiment
+    - Analyze market trends and technical indicators  
+    - Review earnings calendars and fundamental metrics
+    - Synthesize all data into top 10 stock recommendations
+    """
+    try:
+        # Get the recommendation service
+        recommendation_service = get_recommendation_service(client)
+        
+        # Use default request if none provided
+        if request is None:
+            request = StockRecommendationRequest()
+        
+        # Generate recommendations
+        recommendations = await recommendation_service.generate_recommendations(
+            use_parallel_execution=request.use_parallel_execution
+        )
+        
+        return recommendations
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate recommendations: {str(e)}")
+
+@app.get("/stock-recommendations")
+async def get_stock_recommendations_simple():
+    """
+    Simple GET endpoint for stock recommendations (no request body needed)
+    """
+    try:
+        recommendation_service = get_recommendation_service(client)
+        recommendations = await recommendation_service.generate_recommendations()
+        return recommendations
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate recommendations: {str(e)}")
+
+@app.post("/stock-chart")
+async def get_stock_chart_data(request: StockChartRequest):
+    """
+    Get historical stock price data with optional moving averages
+    
+    Supports various timeframes and intervals for detailed chart analysis
+    """
+    try:
+        # Fetch stock data using yfinance
+        ticker = yf.Ticker(request.symbol)
+        hist = ticker.history(period=request.period, interval=request.interval)
+        
+        if hist.empty:
+            raise HTTPException(status_code=404, detail=f"No data found for symbol: {request.symbol}")
+        
+        # Convert to list of dictionaries for JSON response
+        chart_data = []
+        for index, row in hist.iterrows():
+            data_point = {
+                "date": index.strftime("%Y-%m-%d %H:%M:%S") if hasattr(index, 'strftime') else str(index),
+                "timestamp": int(index.timestamp() * 1000) if hasattr(index, 'timestamp') else 0,
+                "open": round(float(row['Open']), 2),
+                "high": round(float(row['High']), 2),
+                "low": round(float(row['Low']), 2),
+                "close": round(float(row['Close']), 2),
+                "volume": int(row['Volume']) if pd.notna(row['Volume']) else 0
+            }
+            chart_data.append(data_point)
+        
+        # Calculate moving averages if requested
+        moving_averages = {}
+        if request.include_moving_averages and len(chart_data) > 0:
+            close_prices = [point['close'] for point in chart_data]
+            
+            # Always calculate MAs if we have any data - don't require minimum lengths
+            ma_periods = [20, 50, 200]
+            data_length = len(close_prices)
+            
+            print(f"🔍 DEBUG: Calculating MAs for {data_length} data points")
+            print(f"🔍 DEBUG: include_moving_averages = {request.include_moving_averages}")
+            print(f"🔍 DEBUG: Sample close prices: {close_prices[:5]}...")
+            
+            for period in ma_periods:
+                ma_values = []
+                valid_count = 0
+                for i in range(len(close_prices)):
+                    if i < period - 1:
+                        ma_values.append(None)
+                    else:
+                        ma = sum(close_prices[i-period+1:i+1]) / period
+                        ma_values.append(round(ma, 2))
+                        valid_count += 1
+                
+                moving_averages[f"ma_{period}"] = ma_values
+                print(f"🔍 DEBUG: MA{period} - {valid_count} valid values, sample: {[v for v in ma_values[-5:] if v is not None]}")
+            
+            print(f"🔍 DEBUG: Final moving_averages keys: {list(moving_averages.keys())}")
+            print(f"🔍 DEBUG: MA20 length: {len(moving_averages.get('ma_20', []))}")
+            print(f"🔍 DEBUG: Sample MA20 values: {[v for v in moving_averages.get('ma_20', [])[-10:] if v is not None]}")
+        else:
+            print(f"🔍 DEBUG: NOT calculating MAs - include_moving_averages: {request.include_moving_averages}, chart_data length: {len(chart_data)}")
+        
+        # Get current stock info
+        info = ticker.info
+        current_price = info.get('currentPrice', chart_data[-1]['close'] if chart_data else 0)
+        previous_close = info.get('previousClose', 0)
+        change = current_price - previous_close if previous_close else 0
+        change_percent = (change / previous_close * 100) if previous_close else 0
+        
+        response = {
+            "symbol": request.symbol.upper(),
+            "company_name": info.get('longName', request.symbol),
+            "current_price": round(float(current_price), 2),
+            "previous_close": round(float(previous_close), 2),
+            "change": round(float(change), 2),
+            "change_percent": round(float(change_percent), 2),
+            "period": request.period,
+            "interval": request.interval,
+            "data": chart_data,
+            "moving_averages": moving_averages,
+            "data_points": len(chart_data),
+            "timestamp": datetime.now().isoformat()
+        }
+        
+        print(f"🔍 DEBUG: FINAL Response moving_averages keys: {list(response['moving_averages'].keys())}")
+        print(f"🔍 DEBUG: FINAL Response data length: {len(response['data'])}")
+        print(f"🔍 DEBUG: FINAL Has MA data: {bool(response['moving_averages'])}")
+        if response['moving_averages']:
+            print(f"🔍 DEBUG: FINAL MA20 sample: {response['moving_averages'].get('ma_20', [])[-3:]}")
+        
+        return response
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch chart data: {str(e)}")
+
+@app.get("/stock-chart/{symbol}")
+async def get_stock_chart_data_simple(symbol: str, period: str = "1mo", interval: str = "1d"):
+    """
+    Simple GET endpoint for stock chart data (no request body needed)
+    """
+    request = StockChartRequest(symbol=symbol, period=period, interval=interval)
+    return await get_stock_chart_data(request)
