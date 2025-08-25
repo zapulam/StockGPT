@@ -1,136 +1,126 @@
 import React, { useState } from "react";
-import { ChevronLeft, ChevronRight, MessageCircleQuestion, Brain, TrendingUp, BookmarkPlus } from "lucide-react";
+import { ChevronLeft, ChevronRight, MessageCircleQuestion, Brain, TrendingUp, BookmarkPlus, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const SideNav = ({ selectedMenu, onMenuSelect }) => {
+const SideNav = ({ selectedMenu, onMenuSelect, onHelpClick }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   const handleToggle = () => {
     setIsCollapsed((prev) => !prev);
   };
 
-  const togglePopup = () => {
-    setIsPopupOpen(!isPopupOpen);
+  const handleHelpClick = () => {
+    onHelpClick();
+    // Expand the sidebar when help is clicked so text fits
+    if (isCollapsed) {
+      setIsCollapsed(false);
+    }
   };
 
-  // Define menu items
   const menuItems = [
-    { icon: <Brain className="w-5 h-5" />, label: "StockGPT" },
-    { icon: <TrendingUp className="w-5 h-5" />, label: "Analyze" },
-    { icon: <BookmarkPlus className="w-5 h-5" />, label: "Watchlist" },
+    { 
+      icon: <Brain className="w-5 h-5" />, 
+      label: "StockGPT",
+      description: "AI Recommendations",
+      color: "from-blue-500 to-purple-600"
+    },
+    { 
+      icon: <TrendingUp className="w-5 h-5" />, 
+      label: "Analyze",
+      description: "Technical Analysis",
+      color: "from-emerald-500 to-teal-600"
+    },
+    { 
+      icon: <BookmarkPlus className="w-5 h-5" />, 
+      label: "Watchlist",
+      description: "Track Stocks",
+      color: "from-orange-500 to-red-600"
+    },
   ];
 
   return (
-    <aside
-      className={`h-full p-4 text-left bg-gray-900 shadow-xl border-r-2 border-gray-800 transition-all duration-300 ${
-        isCollapsed ? "w-16" : "w-72"
-      }`}
+    <motion.aside
+      className="relative h-full bg-white/5 backdrop-blur-xl border-r border-white/10"
+      animate={{ width: isCollapsed ? 68 : 268 }}
+      transition={{ duration: 0.3, ease: "easeInOut" }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between mb-6 mt-2 h-8">
-        <AnimatePresence>
-          {!isCollapsed && (
-            <motion.h2
-              className="text-lg font-bold text-gray-100 whitespace-nowrap overflow-hidden drop-shadow"
-              initial={{ opacity: 0, x: 0 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 0 }}
-            >
-              Navigation
-            </motion.h2>
-          )}
-        </AnimatePresence>
-        <button
+      <div className="h-20 flex items-center px-4 border-b border-white/10">
+        <motion.button
           onClick={handleToggle}
-          className="text-gray-100 p-1 rounded hover:bg-gray-800 shadow cursor-pointer transition"
+          className="w-11 h-11 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition-colors duration-200 flex items-center justify-center flex-shrink-0 cursor-pointer"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
-          {isCollapsed ? <ChevronRight /> : <ChevronLeft />}
-        </button>
+          {isCollapsed ? (
+            <ChevronRight className="w-4 h-4 text-slate-300" />
+          ) : (
+            <ChevronLeft className="w-4 h-4 text-slate-300" />
+          )}
+        </motion.button>
+        
+        {!isCollapsed && (
+          <div className="flex-1 text-left ml-3 min-w-0">
+            <h2 className="text-lg font-bold text-white truncate">Navigation</h2>
+            <p className="text-xs text-slate-400 truncate">Quick Access</p>
+          </div>
+        )}
       </div>
 
       {/* Navigation List */}
-      <ul className="space-y-2">
-        {menuItems.map(({ icon, label, onClick }, index) => (
-          <li key={index} className={`w-full duration-300 rounded ${selectedMenu === label ? "bg-gray-800 text-gray-100 shadow-lg scale-105" : "hover:bg-gray-800 hover:scale-105 text-gray-100"}`}>
-            <button
-              onClick={() => onMenuSelect(label)}
-              className="flex items-center gap-2 text-left py-4.5 px-1.5 rounded cursor-pointer w-full h-8 min-w-0 transition-all duration-200 text-gray-100 text-base"
-            >
-              <div className={`w-5 min-w-5 flex-shrink-0 text-gray-100`}>{icon}</div>
-              <div className="overflow-hidden whitespace-nowrap min-w-0">
-                <AnimatePresence>
-                  {!isCollapsed && (
-                    <motion.span
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -10 }}
-                      transition={{ duration: 0.3 }}
-                      className="font-semibold drop-shadow text-gray-100 text-base"
-                    >
-                      {label}
-                    </motion.span>
-                  )}
-                </AnimatePresence>
+      <nav className="p-4 space-y-2">
+        {menuItems.map(({ icon, label, description, color }) => (
+          <button
+            key={label}
+            onClick={() => onMenuSelect(label)}
+            className={`w-full group relative overflow-hidden rounded-xl transition-all duration-300 cursor-pointer h-16 ${
+              selectedMenu === label 
+                ? 'bg-gradient-to-r ' + color + ' shadow-lg' 
+                : 'hover:bg-white/5 border border-transparent hover:border-white/10'
+            }`}
+          >
+            <div className="flex items-center h-full px-3">
+              {/* Icon - no box, just the icon */}
+              <div className={`transition-colors duration-300 ${
+                selectedMenu === label 
+                  ? 'text-white' 
+                  : 'text-slate-300 group-hover:text-white'
+              }`}>
+                {icon}
               </div>
-            </button>
-          </li>
+              
+              {/* Text content */}
+              {!isCollapsed && (
+                <div className="flex-1 text-left ml-3 min-w-0">
+                  <div className={`font-semibold transition-colors truncate ${
+                    selectedMenu === label ? 'text-white' : 'text-slate-200 group-hover:text-white'
+                  }`}>
+                    {label}
+                  </div>
+                  <div className={`text-xs transition-colors truncate ${
+                    selectedMenu === label ? 'text-white/80' : 'text-slate-300 group-hover:text-slate-300'
+                  }`}>
+                    {description}
+                  </div>
+                </div>
+              )}
+            </div>
+          </button>
         ))}
-      </ul>
+      </nav>
 
-      {/* Question mark button at the bottom */}
-      <div className="absolute bottom-4 left-4">
+      {/* Help Button */}
+      <div className="absolute bottom-6 left-4 right-4">
         <button
-          onClick={togglePopup}
-          className="text-gray-100 p-2 rounded-full hover:bg-gray-800/30 cursor-pointer border border-gray-700 shadow"
+          onClick={handleHelpClick}
+          className="w-12 h-12 rounded-full bg-gradient-to-r from-slate-600/20 to-slate-700/20 hover:from-slate-600/30 hover:to-slate-700/30 border border-white/10 transition-all duration-200 group cursor-pointer flex items-center justify-center"
         >
-          <MessageCircleQuestion className="w-5 h-5" />
+          <MessageCircleQuestion className="w-5 h-5 text-slate-300 group-hover:text-white" />
         </button>
       </div>
 
-      {/* Popup with animation */}
-      <AnimatePresence>
-        {isPopupOpen && (
-          <motion.div
-            className="fixed inset-0 bg-gray-900/95 bg-opacity-95 flex justify-center items-center z-50 backdrop-blur-lg"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <motion.div
-              className="bg-gray-800 p-10 rounded-2xl text-gray-100 w-full max-w-lg shadow-2xl border-2 border-gray-700 flex flex-col items-center"
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.9 }}
-              transition={{ duration: 0.3 }}
-            >
-              <div className="flex flex-col items-center mb-4">
-                <MessageCircleQuestion className="w-12 h-12 text-gray-300 mb-2" />
-                <h3 className="text-2xl font-bold mb-2">Welcome to <span className='text-blue-400'>StockGPT</span></h3>
-                <p className="text-gray-300 text-center mb-4 max-w-md">
-                  StockGPT is your AI-powered platform for intelligent stock market analysis. Choose from three powerful features:
-                </p>
-                <ul className="text-left text-gray-200 list-disc pl-6 space-y-1 mb-4">
-                  <li><span className="font-semibold text-blue-300">StockGPT:</span> Get AI-recommended top 10 stocks with technical charts.</li>
-                  <li><span className="font-semibold text-blue-300">Analyze:</span> View in-depth candlestick charts for any stock you search.</li>
-                  <li><span className="font-semibold text-blue-300">Watchlist:</span> Save and track your favorite stocks for monitoring.</li>
-                </ul>
-              </div>
-              <button
-                onClick={togglePopup}
-                className="mt-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded shadow-md font-semibold transition"
-              >
-                Close
-              </button>
-              <div className="mt-6 text-xs text-gray-400 text-center w-full border-t border-gray-700 pt-2">
-                &copy; {new Date().getFullYear()} StockGPT. For research and educational use only.
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </aside>
+      
+    </motion.aside>
   );
 };
 

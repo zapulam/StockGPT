@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BookmarkPlus, Search, TrendingUp, TrendingDown, X, Plus, DollarSign, Eye, Trash2 } from 'lucide-react';
+import { BookmarkPlus, Search, TrendingUp, TrendingDown, X, Plus, DollarSign, Eye, Trash2, Sparkles, Target, Activity } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Watchlist = () => {
@@ -86,9 +86,9 @@ const Watchlist = () => {
   };
 
   const getPerformanceColor = (change) => {
-    if (change > 0) return 'text-green-400';
+    if (change > 0) return 'text-emerald-400';
     if (change < 0) return 'text-red-400';
-    return 'text-gray-400';
+    return 'text-slate-400';
   };
 
   const calculatePortfolioValue = () => {
@@ -100,137 +100,181 @@ const Watchlist = () => {
   };
 
   return (
-    <div className="flex-1 bg-gray-900 p-6 overflow-y-auto">
+    <div className="flex-1 p-6 overflow-y-auto">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-3">
-              <BookmarkPlus className="w-8 h-8 text-blue-400" />
-              <h1 className="text-3xl font-bold text-white">My Watchlist</h1>
+        <div className="mb-12">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center space-x-4">
+              <div className="relative">
+                <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <BookmarkPlus className="w-6 h-6 text-white" />
+                </div>
+                <div className="absolute -inset-1 bg-gradient-to-r from-orange-500 to-red-600 rounded-xl blur opacity-20"></div>
+              </div>
+              <div>
+                <h1 className="text-4xl font-bold text-white">My Watchlist</h1>
+                <p className="text-slate-400 text-lg">Track your favorite stocks and monitor their performance in real-time.</p>
+              </div>
             </div>
             <div className="flex items-center space-x-4">
-              <button
+              <motion.button
                 onClick={updateStockPrices}
-                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+                className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl transition-all duration-200 border border-white/10 backdrop-blur-sm"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
                 Refresh Prices
-              </button>
-              <button
+              </motion.button>
+              <motion.button
                 onClick={() => setShowAddStock(true)}
-                className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors"
+                className="flex items-center space-x-3 px-6 py-3 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="w-5 h-5" />
                 <span>Add Stock</span>
-              </button>
+              </motion.button>
             </div>
           </div>
-          <p className="text-gray-400 text-lg">
-            Track your favorite stocks and monitor their performance in real-time.
-          </p>
         </div>
 
         {/* Portfolio Summary */}
         {watchlist.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-              <div className="flex items-center space-x-2 mb-2">
-                <Eye className="w-5 h-5 text-blue-400" />
-                <span className="text-gray-400">Stocks Watched</span>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <motion.div 
+              className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                  <Eye className="w-5 h-5 text-blue-400" />
+                </div>
+                <span className="text-slate-400 font-medium">Stocks Watched</span>
               </div>
-              <span className="text-2xl font-bold text-white">{watchlist.length}</span>
-            </div>
-            <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-              <div className="flex items-center space-x-2 mb-2">
-                <DollarSign className="w-5 h-5 text-green-400" />
-                <span className="text-gray-400">Total Value</span>
+              <span className="text-3xl font-bold text-white">{watchlist.length}</span>
+            </motion.div>
+            
+            <motion.div 
+              className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="w-10 h-10 bg-emerald-500/20 rounded-lg flex items-center justify-center">
+                  <DollarSign className="w-5 h-5 text-emerald-400" />
+                </div>
+                <span className="text-slate-400 font-medium">Total Value</span>
               </div>
-              <span className="text-2xl font-bold text-white">${calculatePortfolioValue().toFixed(2)}</span>
-            </div>
-            <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-              <div className="flex items-center space-x-2 mb-2">
-                <TrendingUp className="w-5 h-5 text-yellow-400" />
-                <span className="text-gray-400">Total Change</span>
+              <span className="text-3xl font-bold text-white">${calculatePortfolioValue().toFixed(2)}</span>
+            </motion.div>
+            
+            <motion.div 
+              className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="w-10 h-10 bg-yellow-500/20 rounded-lg flex items-center justify-center">
+                  <TrendingUp className="w-5 h-5 text-yellow-400" />
+                </div>
+                <span className="text-slate-400 font-medium">Total Change</span>
               </div>
-              <span className={`text-2xl font-bold ${getPerformanceColor(calculateTotalChange())}`}>
+              <span className={`text-3xl font-bold ${getPerformanceColor(calculateTotalChange())}`}>
                 {calculateTotalChange() >= 0 ? '+' : ''}${calculateTotalChange().toFixed(2)}
               </span>
-            </div>
+            </motion.div>
           </div>
         )}
 
         {/* Watchlist Grid */}
         {watchlist.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <AnimatePresence>
-              {watchlist.map((stock) => (
+              {watchlist.map((stock, index) => (
                 <motion.div
                   key={stock.id}
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
-                  className="bg-gray-800 rounded-xl p-6 border border-gray-700 hover:border-gray-600 transition-all duration-300"
+                  transition={{ delay: index * 0.1 }}
+                  className="group relative bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/10"
                 >
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <h3 className="text-xl font-bold text-white">{stock.symbol}</h3>
-                      <p className="text-gray-400 text-sm">{stock.name}</p>
+                  {/* Gradient overlay on hover */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-red-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  
+                  <div className="relative z-10">
+                    <div className="flex items-start justify-between mb-6">
+                      <div>
+                        <h3 className="text-2xl font-bold text-white mb-1">{stock.symbol}</h3>
+                        <p className="text-slate-400 text-sm">{stock.name}</p>
+                      </div>
+                      <motion.button
+                        onClick={() => removeFromWatchlist(stock.id)}
+                        className="text-slate-400 hover:text-red-400 transition-colors p-2 rounded-lg hover:bg-white/5"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </motion.button>
                     </div>
-                    <button
-                      onClick={() => removeFromWatchlist(stock.id)}
-                      className="text-gray-400 hover:text-red-400 transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
 
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-400">Price:</span>
-                      <span className="text-xl font-bold text-white">${stock.price}</span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-400">Change:</span>
-                      <div className={`flex items-center space-x-1 ${getPerformanceColor(stock.change)}`}>
-                        {stock.change >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-                        <span>{stock.change >= 0 ? '+' : ''}${stock.change}</span>
-                        <span>({stock.changePercent >= 0 ? '+' : ''}{stock.changePercent}%)</span>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-400">Price:</span>
+                        <span className="text-2xl font-bold text-white">${stock.price}</span>
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-400">Change:</span>
+                        <div className={`flex items-center space-x-2 ${getPerformanceColor(stock.change)}`}>
+                          {stock.change >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+                          <span className="font-semibold">{stock.change >= 0 ? '+' : ''}${stock.change}</span>
+                          <span className="text-sm">({stock.changePercent >= 0 ? '+' : ''}{stock.changePercent}%)</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-400">Added:</span>
+                        <span className="text-white text-sm">
+                          {new Date(stock.addedDate).toLocaleDateString()}
+                        </span>
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-400">Added:</span>
-                      <span className="text-white text-sm">
-                        {new Date(stock.addedDate).toLocaleDateString()}
-                      </span>
+                    {/* Mini chart placeholder */}
+                    <div className="mt-6 h-20 bg-white/5 rounded-xl flex items-center justify-center border border-white/10">
+                      <span className="text-slate-500 text-xs">Mini chart - {stock.symbol}</span>
                     </div>
-                  </div>
-
-                  {/* Mini chart placeholder */}
-                  <div className="mt-4 h-16 bg-gray-700/50 rounded-lg flex items-center justify-center">
-                    <span className="text-gray-500 text-xs">Mini chart - {stock.symbol}</span>
                   </div>
                 </motion.div>
               ))}
             </AnimatePresence>
           </div>
         ) : (
-          <div className="text-center py-16">
-            <BookmarkPlus className="w-24 h-24 text-gray-600 mx-auto mb-6" />
-            <h3 className="text-xl font-semibold text-gray-400 mb-2">
+          <div className="text-center py-20">
+            <div className="w-24 h-24 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-8 border border-white/10">
+              <BookmarkPlus className="w-12 h-12 text-slate-500" />
+            </div>
+            <h3 className="text-2xl font-semibold text-slate-400 mb-4">
               Your watchlist is empty
             </h3>
-            <p className="text-gray-500 mb-6">
+            <p className="text-slate-500 text-lg mb-8 max-w-md mx-auto">
               Start tracking stocks by adding them to your watchlist
             </p>
-            <button
+            <motion.button
               onClick={() => setShowAddStock(true)}
-              className="flex items-center space-x-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors mx-auto"
+              className="flex items-center space-x-3 px-8 py-4 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl mx-auto"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-5 h-5" />
               <span>Add Your First Stock</span>
-            </button>
+            </motion.button>
           </div>
         )}
 
@@ -241,84 +285,90 @@ const Watchlist = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
             >
               <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                className="bg-gray-800 rounded-xl p-6 w-full max-w-md border border-gray-700"
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 w-full max-w-md border border-white/20 shadow-2xl"
               >
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-bold text-white">Add Stock to Watchlist</h3>
-                  <button
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-2xl font-bold text-white">Add Stock to Watchlist</h3>
+                  <motion.button
                     onClick={() => {
                       setShowAddStock(false);
                       setSearchTerm('');
                       setSearchResults([]);
                     }}
-                    className="text-gray-400 hover:text-white"
+                    className="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-white/5 transition-colors"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
                   >
                     <X className="w-6 h-6" />
-                  </button>
+                  </motion.button>
                 </div>
 
-                <div className="relative mb-4">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <div className="relative mb-6">
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
                   <input
                     type="text"
                     placeholder="Search stocks (e.g., AAPL, Tesla)"
                     value={searchTerm}
                     onChange={(e) => handleSearch(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                    className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-transparent backdrop-blur-sm transition-all duration-200"
                     autoFocus
                   />
                 </div>
 
                 {/* Search Results */}
                 {searchResults.length > 0 && (
-                  <div className="space-y-2 max-h-60 overflow-y-auto">
+                  <div className="space-y-3 max-h-60 overflow-y-auto">
                     {searchResults.map((symbol) => {
                       const stock = availableStocks[symbol];
                       const isInWatchlist = watchlist.some(item => item.symbol === symbol);
                       
                       return (
-                        <button
+                        <motion.button
                           key={symbol}
                           onClick={() => !isInWatchlist && addToWatchlist(symbol)}
                           disabled={isInWatchlist}
-                          className={`w-full p-3 rounded-lg border text-left transition-colors ${
+                          className={`w-full p-4 rounded-xl border text-left transition-all duration-200 ${
                             isInWatchlist
-                              ? 'bg-gray-700 border-gray-600 text-gray-400 cursor-not-allowed'
-                              : 'bg-gray-700 border-gray-600 hover:bg-gray-600 text-white'
+                              ? 'bg-white/5 border-white/10 text-slate-400 cursor-not-allowed'
+                              : 'bg-white/5 border-white/10 hover:bg-white/10 text-white hover:border-white/20'
                           }`}
+                          whileHover={!isInWatchlist ? { scale: 1.02 } : {}}
+                          whileTap={!isInWatchlist ? { scale: 0.98 } : {}}
                         >
                           <div className="flex items-center justify-between">
                             <div>
-                              <div className="font-semibold">{stock.symbol}</div>
-                              <div className="text-sm text-gray-400">{stock.name}</div>
+                              <div className="font-semibold text-lg">{stock.symbol}</div>
+                              <div className="text-sm text-slate-400">{stock.name}</div>
                             </div>
                             <div className="text-right">
-                              <div className="font-semibold">${stock.price}</div>
+                              <div className="font-semibold text-lg">${stock.price}</div>
                               {isInWatchlist && (
-                                <div className="text-xs text-blue-400">In watchlist</div>
+                                <div className="text-xs text-orange-400 font-medium">In watchlist</div>
                               )}
                             </div>
                           </div>
-                        </button>
+                        </motion.button>
                       );
                     })}
                   </div>
                 )}
 
                 {searchTerm && searchResults.length === 0 && (
-                  <div className="text-center py-4 text-gray-400">
+                  <div className="text-center py-8 text-slate-400">
+                    <Search className="w-8 h-8 mx-auto mb-3 opacity-50" />
                     No stocks found matching "{searchTerm}"
                   </div>
                 )}
 
                 {!searchTerm && (
-                  <div className="text-center py-4 text-gray-400">
+                  <div className="text-center py-8 text-slate-400">
+                    <Sparkles className="w-8 h-8 mx-auto mb-3 opacity-50" />
                     Start typing to search for stocks
                   </div>
                 )}
